@@ -1,0 +1,24 @@
+{
+  "name": "outbound-production-tracker",
+  "version": "1.0.0",
+  "description": "Browser-based operational tool for comparing actual vs planned production metrics",
+  "main": "src/metrics.js",
+  "type": "module",
+  "scripts": {
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
+    "test:watch": "node --experimental-vm-modules node_modules/jest/bin/jest.js --watch",
+    "test:coverage": "node --experimental-vm-modules node_modules/jest/bin/jest.js --coverage"
+  },
+  "keywords": [
+    "production",
+    "tracker",
+    "metrics",
+    "warehouse"
+  ],
+  "author": "Joe Pelkey",
+  "license": "MIT",
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "^29.7.0"
+  }
+}

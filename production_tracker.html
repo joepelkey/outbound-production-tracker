@@ -12,8 +12,8 @@
             font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
         }
         .container { max-width: 1000px; }
-        .card { 
-            border-radius: 12px; 
+        .card {
+            border-radius: 12px;
             background-color: #161b22;
             border-color: #30363d;
         }
@@ -158,9 +158,100 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
+    <script type="module">
+        // Import from modules when served from a web server
+        // For standalone use, the functions are defined inline below
+
+        // ============================================
+        // Core Metrics Functions (from src/metrics.js)
+        // ============================================
+
         const AVAILABLE_DOCKS = ['PD1', 'PD2', 'PD3', 'PD4', 'PD5', 'PD6', 'PD7', 'PD8', 'PD9', 'PD10', 'PD11', 'PD12', 'PD13', 'SDs', 'HUB SEC', 'PKG SEC'];
-        
+        const DEFAULT_DOCKS = ['PD10', 'PD11', 'SDs', 'HUB SEC'];
+
+        function calculateActualProduction(volume, hours) {
+            if (hours === 0) return 0;
+            return volume / hours;
+        }
+
+        function calculateExcessHours(hours, volume, plan) {
+            if (plan === 0) return hours;
+            return hours - (volume / plan);
+        }
+
+        function parseNumericInput(value) {
+            const parsed = parseFloat(value);
+            return isNaN(parsed) ? 0 : parsed;
+        }
+
+        function validateDockData(dockData) {
+            return {
+                volume: Math.max(0, parseNumericInput(dockData?.volume)),
+                hours: Math.max(0, parseNumericInput(dockData?.hours)),
+                plan: Math.max(0, parseNumericInput(dockData?.plan))
+            };
+        }
+
+        function computeDockMetrics(dockData) {
+            const validated = validateDockData(dockData);
+            const { volume, hours, plan } = validated;
+            return {
+                volume,
+                hours,
+                plan,
+                actual_production: calculateActualProduction(volume, hours),
+                excess_hours: calculateExcessHours(hours, volume, plan)
+            };
+        }
+
+        function computeAllMetrics(docksData) {
+            const results = {};
+            let totalVolume = 0;
+            let totalHours = 0;
+            let totalExcess = 0;
+
+            for (const [dockName, dockData] of Object.entries(docksData)) {
+                const metrics = computeDockMetrics(dockData);
+                results[dockName] = metrics;
+                totalVolume += metrics.volume;
+                totalHours += metrics.hours;
+                totalExcess += metrics.excess_hours;
+            }
+
+            const outboundProduction = totalHours !== 0 ? totalVolume / totalHours : 0;
+            results['Outbound'] = {
+                volume: totalVolume,
+                hours: totalHours,
+                plan: null,
+                actual_production: outboundProduction,
+                excess_hours: totalExcess
+            };
+
+            return results;
+        }
+
+        function formatNumber(value) {
+            if (typeof value !== 'number' || isNaN(value)) return '0.00';
+            return value.toFixed(2);
+        }
+
+        function isValidDock(dockName) {
+            return AVAILABLE_DOCKS.includes(dockName);
+        }
+
+        // ================================================
+        // Dock Manager Functions (from src/dockManager.js)
+        // ================================================
+
+        function getDockElementId(dockName) {
+            if (!dockName || typeof dockName !== 'string') return '';
+            return 'dock-' + dockName.replace(/\s/g, '-');
+        }
+
+        // ============================================
+        // UI Code
+        // ============================================
+
         const docksContainer = document.getElementById('docksContainer');
         const dockSelector = document.getElementById('dockSelector');
         const addDockBtn = document.getElementById('addDockBtn');
@@ -174,18 +265,18 @@
                 alert(dockName + ' is already added');
                 return;
             }
-            
+
             addedDocks.add(dockName);
             const col = document.createElement('div');
             col.className = 'col-12 col-md-6';
-            col.id = 'dock-' + dockName.replace(/\s/g, '-');
-            
+            col.id = getDockElementId(dockName);
+
             col.innerHTML = `
                 <div class="card shadow-sm">
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-center mb-3">
                             <h5 class="mb-0">${dockName}</h5>
-                            <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeDock('${dockName}')">Remove</button>
+                            <button type="button" class="btn btn-sm btn-outline-danger remove-dock-btn" data-dock="${dockName}">Remove</button>
                         </div>
                         <div class="row g-2">
                             <div class="col-12">
@@ -204,18 +295,26 @@
                     </div>
                 </div>
             `;
-            
+
             docksContainer.appendChild(col);
         }
 
-        window.removeDock = function(dockName) {
-            const dockId = 'dock-' + dockName.replace(/\s/g, '-');
+        function removeDock(dockName) {
+            const dockId = getDockElementId(dockName);
             const element = document.getElementById(dockId);
             if (element) {
                 element.remove();
                 addedDocks.delete(dockName);
             }
-        };
+        }
+
+        // Event delegation for remove buttons
+        docksContainer.addEventListener('click', function(e) {
+            if (e.target.classList.contains('remove-dock-btn')) {
+                const dockName = e.target.dataset.dock;
+                removeDock(dockName);
+            }
+        });
 
         addDockBtn.addEventListener('click', function() {
             const selectedDock = dockSelector.value;
@@ -227,87 +326,58 @@
             }
         });
 
-        function computeMetrics(activeDocks) {
-            const results = {};
-            let totalVolume = 0;
-            let totalHours = 0;
-            let totalExcess = 0;
-
+        function collectDockData(activeDocks) {
+            const docksData = {};
             for (const dock of activeDocks) {
                 const volumeInput = document.querySelector(`input[name="${dock}_volume"]`);
                 const hoursInput = document.querySelector(`input[name="${dock}_hours"]`);
                 const planInput = document.querySelector(`input[name="${dock}_plan"]`);
 
-                const v = parseFloat(volumeInput.value) || 0;
-                const h = parseFloat(hoursInput.value) || 0;
-                const p = parseFloat(planInput.value) || 0;
-
-                // Actual Production = volume / hours (PPH)
-                const actualProduction = h !== 0 ? v / h : 0;
-                
-                // Excess Hours = hours - (volume / plan)
-                const excessHours = p !== 0 ? h - (v / p) : h;
-
-                results[dock] = {
-                    volume: v,
-                    hours: h,
-                    plan: p,
-                    actual_production: actualProduction,
-                    excess_hours: excessHours
+                docksData[dock] = {
+                    volume: volumeInput?.value || 0,
+                    hours: hoursInput?.value || 0,
+                    plan: planInput?.value || 0
                 };
-
-                totalVolume += v;
-                totalHours += h;
-                totalExcess += excessHours;
             }
-
-            const outboundProduction = totalHours !== 0 ? totalVolume / totalHours : 0;
-            results['Outbound'] = {
-                volume: totalVolume,
-                hours: totalHours,
-                plan: null,
-                actual_production: outboundProduction,
-                excess_hours: totalExcess
-            };
-
-            return results;
+            return docksData;
         }
 
         function displayResults(results) {
             resultsTableBody.innerHTML = '';
-            
+
             for (const [dockName, data] of Object.entries(results)) {
                 const row = document.createElement('tr');
                 row.innerHTML = `
                     <td>${dockName}</td>
-                    <td>${data.volume.toFixed(2)}</td>
-                    <td>${data.hours.toFixed(2)}</td>
-                    <td>${data.plan !== null ? data.plan.toFixed(2) : '-'}</td>
-                    <td><strong>${data.actual_production.toFixed(2)}</strong></td>
-                    <td><strong>${data.excess_hours.toFixed(2)}</strong></td>
+                    <td>${formatNumber(data.volume)}</td>
+                    <td>${formatNumber(data.hours)}</td>
+                    <td>${data.plan !== null ? formatNumber(data.plan) : '-'}</td>
+                    <td><strong>${formatNumber(data.actual_production)}</strong></td>
+                    <td><strong>${formatNumber(data.excess_hours)}</strong></td>
                 `;
                 resultsTableBody.appendChild(row);
             }
-            
+
             resultsSection.style.display = 'block';
             resultsSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         }
 
         productionForm.addEventListener('submit', function(e) {
             e.preventDefault();
-            
+
             const activeDocks = Array.from(addedDocks);
             if (activeDocks.length === 0) {
                 alert('Please add at least one dock');
                 return;
             }
-            
-            const results = computeMetrics(activeDocks);
+
+            const docksData = collectDockData(activeDocks);
+            const results = computeAllMetrics(docksData);
             displayResults(results);
         });
 
         // Add default docks on page load
-        ['PD10', 'PD11', 'SDs', 'HUB SEC'].forEach(dock => createDockCard(dock));
+        DEFAULT_DOCKS.forEach(dock => createDockCard(dock));
     </script>
 </body>
 </html>
