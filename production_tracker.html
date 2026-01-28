@@ -1,313 +1,411 @@
 <!doctype html>
-<html lang="en" data-bs-theme="dark">
-<head>
+<html lang="en">
+  <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Outbound Production Tracker</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>Production Tracker</title>
     <style>
-        body {
-            background: #0d1117;
-            color: #e6edf3;
-            font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
-        }
-        .container { max-width: 1000px; }
-        .card { 
-            border-radius: 12px; 
-            background-color: #161b22;
-            border-color: #30363d;
-        }
-        h1.h3, h1.h4, h5 { color: #e6edf3; }
-        .card-title { color: #e6edf3; font-weight: 600; }
-        .btn-primary { background: linear-gradient(90deg, #2563eb 0%, #7c3aed 100%); border: none; }
-        .btn-primary:hover { opacity: 0.95; }
-        .btn-green {
-            background-color: #238636;
-            border-color: #238636;
-            color: #ffffff;
-        }
-        .btn-green:hover {
-            background-color: #2ea043;
-            border-color: #2ea043;
-        }
-        .btn-orange {
-            background-color: #fb8500;
-            border-color: #fb8500;
-            color: #ffffff;
-        }
-        .btn-orange:hover {
-            background-color: #ff9500;
-            border-color: #ff9500;
-        }
-        .btn-success {
-            background-color: #238636;
-            border-color: #238636;
-            color: #ffffff;
-        }
-        .btn-success:hover {
-            background-color: #2ea043;
-            border-color: #2ea043;
-        }
-        .btn-outline-danger {
-            color: #f85149;
-            border-color: #f85149;
-        }
-        .btn-outline-danger:hover {
-            background-color: #f85149;
-            color: #ffffff;
-            border-color: #f85149;
-        }
-        .btn-outline-secondary {
-            color: #e6edf3;
-            border-color: #30363d;
-        }
-        .btn-outline-secondary:hover {
-            background-color: #30363d;
-            color: #e6edf3;
-        }
-        .table { color: #e6edf3; }
-        .table thead th { border-bottom: 0; }
-        .table-striped > tbody > tr:nth-of-type(odd) > * {
-            background-color: rgba(255, 255, 255, 0.05);
-        }
-        .table-hover > tbody > tr:hover > * {
-            background-color: rgba(255, 255, 255, 0.075);
-        }
-        .form-control, .form-control-sm, .form-select, .form-select-sm {
-            background-color: #0d1117;
-            border-color: #30363d;
-            color: #e6edf3;
-        }
-        .form-control:focus, .form-control-sm:focus, .form-select:focus, .form-select-sm:focus {
-            background-color: #0d1117;
-            border-color: #2563eb;
-            color: #e6edf3;
-        }
-        .form-label {
-            color: #8b949e;
-        }
-        .text-muted {
-            color: #8b949e !important;
-        }
+      :root {
+        --bg: #f4f2ea;
+        --card: #ffffff;
+        --ink: #1b1b1b;
+        --muted: #6b6b6b;
+        --accent: #0f4c5c;
+        --accent-2: #e36414;
+        --line: #e1ddd2;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family: "Georgia", "Times New Roman", serif;
+        color: var(--ink);
+        background: radial-gradient(circle at 20% 10%, #fef7e7 0, var(--bg) 45%, #f0ece2 100%);
+      }
+
+      .wrap {
+        max-width: 980px;
+        margin: 0 auto;
+        padding: 24px 18px 36px;
+      }
+
+      header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 18px;
+      }
+
+      h1 {
+        margin: 0;
+        font-size: 26px;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+      }
+
+      .sub {
+        font-family: "Arial Black", Arial, sans-serif;
+        font-size: 12px;
+        color: var(--muted);
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 14px;
+      }
+
+      .card {
+        background: var(--card);
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        padding: 14px;
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.05);
+      }
+
+      .card h2 {
+        margin: 0 0 10px;
+        font-size: 18px;
+        color: var(--accent);
+      }
+
+      label {
+        display: block;
+        font-size: 12px;
+        margin-bottom: 6px;
+        color: var(--muted);
+        font-family: "Arial", sans-serif;
+      }
+
+      input[type="number"] {
+        width: 100%;
+        padding: 8px 10px;
+        border-radius: 8px;
+        border: 1px solid var(--line);
+        font-size: 14px;
+        font-family: "Arial", sans-serif;
+      }
+
+      .row {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 10px;
+      }
+
+      .actions {
+        margin-top: 18px;
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+
+      button {
+        border: 0;
+        border-radius: 999px;
+        padding: 10px 18px;
+        font-size: 14px;
+        font-family: "Arial Black", Arial, sans-serif;
+        cursor: pointer;
+      }
+
+      .primary {
+        background: var(--accent);
+        color: #fff;
+      }
+
+      .ghost {
+        background: transparent;
+        border: 1px solid var(--accent);
+        color: var(--accent);
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 18px;
+        background: var(--card);
+        border-radius: 12px;
+        overflow: hidden;
+        border: 1px solid var(--line);
+      }
+
+      th, td {
+        text-align: left;
+        padding: 12px 10px;
+        border-bottom: 1px solid var(--line);
+        font-family: "Arial", sans-serif;
+        font-size: 14px;
+      }
+
+      th {
+        background: #f7f2e6;
+        color: var(--accent);
+      }
+
+      tfoot td {
+        font-weight: bold;
+        color: var(--accent-2);
+      }
+
+      .note {
+        margin-top: 10px;
+        color: var(--muted);
+        font-size: 12px;
+        font-family: "Arial", sans-serif;
+      }
+
+      .remove-btn {
+        background: #f85149;
+        color: #fff;
+        border: 0;
+        border-radius: 999px;
+        padding: 6px 12px;
+        font-size: 12px;
+        font-family: "Arial Black", Arial, sans-serif;
+        cursor: pointer;
+        margin-top: 8px;
+        width: 100%;
+      }
+
+      .remove-btn:hover {
+        opacity: 0.9;
+      }
+
+      .dock-card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+      }
+
+      .dock-card-header h2 {
+        margin: 0;
+      }
     </style>
-</head>
-<body class="bg-dark text-light">
-    <div class="container py-4">
-        <div class="mb-4">
-            <h1 class="h3 mb-1">Outbound Production Tracker</h1>
-            <p class="text-muted small mb-0">Created by Joe Pelkey</p>
+  </head>
+  <body>
+    <div class="wrap">
+      <header>
+        <div>
+          <h1>Production Tracker</h1>
+          <div class="sub">Created by Joe Pelkey</div>
+        </div>
+      </header>
+
+      <div style="margin-bottom: 18px; padding: 14px; background: var(--card); border: 1px solid var(--line); border-radius: 12px;">
+        <label style="display: block; font-size: 12px; margin-bottom: 8px; color: var(--muted); font-family: 'Arial', sans-serif;">Select Dock to Add:</label>
+        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+          <select id="dockSelector" style="padding: 8px 10px; border-radius: 8px; border: 1px solid var(--line); font-size: 14px; font-family: 'Arial', sans-serif; color: var(--ink); background: var(--card); max-width: 200px;">
+            <option value="">-- Choose Dock --</option>
+            <option value="PD1">PD1</option>
+            <option value="PD2">PD2</option>
+            <option value="PD3">PD3</option>
+            <option value="PD4">PD4</option>
+            <option value="PD5">PD5</option>
+            <option value="PD6">PD6</option>
+            <option value="PD7">PD7</option>
+            <option value="PD8">PD8</option>
+            <option value="PD9">PD9</option>
+            <option value="PD10">PD10</option>
+            <option value="PD11">PD11</option>
+            <option value="PD12">PD12</option>
+            <option value="PD13">PD13</option>
+            <option value="SDs">SDs</option>
+            <option value="HUB SEC">HUB SEC</option>
+            <option value="PKG SEC">PKG SEC</option>
+          </select>
+          <button type="button" id="addDockBtn" class="primary" style="border: 0; border-radius: 999px; padding: 10px 18px; font-size: 14px; font-family: 'Arial Black', Arial, sans-serif; cursor: pointer; color: #fff;">Add Dock</button>
+        </div>
+      </div>
+
+      <form id="production-form">
+        <div class="grid" id="docksContainer">
+          <!-- Dock cards will be added here dynamically -->
         </div>
 
-        <div class="mb-3">
-            <label class="form-label">Select Dock to Add:</label>
-            <div class="d-flex gap-2">
-                <select id="dockSelector" class="form-select form-select-sm" style="max-width: 200px;">
-                    <option value="">-- Choose Dock --</option>
-                    <option value="PD1">PD1</option>
-                    <option value="PD2">PD2</option>
-                    <option value="PD3">PD3</option>
-                    <option value="PD4">PD4</option>
-                    <option value="PD5">PD5</option>
-                    <option value="PD6">PD6</option>
-                    <option value="PD7">PD7</option>
-                    <option value="PD8">PD8</option>
-                    <option value="PD9">PD9</option>
-                    <option value="PD10">PD10</option>
-                    <option value="PD11">PD11</option>
-                    <option value="PD12">PD12</option>
-                    <option value="PD13">PD13</option>
-                    <option value="SDs">SDs</option>
-                    <option value="HUB SEC">HUB SEC</option>
-                    <option value="PKG SEC">PKG SEC</option>
-                </select>
-                <button type="button" id="addDockBtn" class="btn btn-sm btn-success">Add Dock</button>
-            </div>
+        <div class="actions">
+          <button class="primary" type="submit">Compute</button>
+          <button class="ghost" type="reset">Reset</button>
         </div>
+      </form>
 
-        <form id="productionForm">
-            <div id="docksContainer" class="row g-3">
-                <!-- Dock cards will be added here dynamically -->
-            </div>
+      <table id="results-table" aria-live="polite" style="display: none;">
+        <thead>
+          <tr>
+            <th>Dock</th>
+            <th>Volume</th>
+            <th>Hours</th>
+            <th>Plan (PPH)</th>
+            <th>Production (PPH)</th>
+            <th>Excess Hours</th>
+          </tr>
+        </thead>
+        <tbody id="resultsTableBody">
+        </tbody>
+      </table>
 
-            <div class="mt-4 d-flex gap-2">
-                <button type="submit" class="btn btn-green btn-lg">Compute</button>
-                <button type="reset" class="btn btn-orange btn-lg">Reset</button>
-            </div>
-        </form>
-
-        <!-- Results Section -->
-        <div id="resultsSection" style="display: none;" class="mt-5">
-            <h4 class="mb-3">Results</h4>
-            <div class="table-responsive mb-3">
-                <table class="table table-striped table-hover align-middle">
-                    <thead class="table-light">
-                        <tr>
-                            <th>Dock</th>
-                            <th>Volume</th>
-                            <th>Hours</th>
-                            <th>Plan (PPH)</th>
-                            <th>Actual Production (PPH)</th>
-                            <th>Excess Hours</th>
-                        </tr>
-                    </thead>
-                    <tbody id="resultsTableBody">
-                    </tbody>
-                </table>
-            </div>
-        </div>
+      <div class="note">Actual production = volume / hours. Excess hours = hours - (volume / plan).</div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        const AVAILABLE_DOCKS = ['PD1', 'PD2', 'PD3', 'PD4', 'PD5', 'PD6', 'PD7', 'PD8', 'PD9', 'PD10', 'PD11', 'PD12', 'PD13', 'SDs', 'HUB SEC', 'PKG SEC'];
-        
-        const docksContainer = document.getElementById('docksContainer');
-        const dockSelector = document.getElementById('dockSelector');
-        const addDockBtn = document.getElementById('addDockBtn');
-        const productionForm = document.getElementById('productionForm');
-        const resultsSection = document.getElementById('resultsSection');
-        const resultsTableBody = document.getElementById('resultsTableBody');
-        const addedDocks = new Set();
+      const AVAILABLE_DOCKS = ['PD1', 'PD2', 'PD3', 'PD4', 'PD5', 'PD6', 'PD7', 'PD8', 'PD9', 'PD10', 'PD11', 'PD12', 'PD13', 'SDs', 'HUB SEC', 'PKG SEC'];
+      
+      const docksContainer = document.getElementById('docksContainer');
+      const dockSelector = document.getElementById('dockSelector');
+      const addDockBtn = document.getElementById('addDockBtn');
+      const productionForm = document.getElementById('production-form');
+      const resultsTable = document.getElementById('results-table');
+      const resultsTableBody = document.getElementById('resultsTableBody');
+      const addedDocks = new Set();
 
-        function createDockCard(dockName) {
-            if (addedDocks.has(dockName)) {
-                alert(dockName + ' is already added');
-                return;
-            }
-            
-            addedDocks.add(dockName);
-            const col = document.createElement('div');
-            col.className = 'col-12 col-md-6';
-            col.id = 'dock-' + dockName.replace(/\s/g, '-');
-            
-            col.innerHTML = `
-                <div class="card shadow-sm">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <h5 class="mb-0">${dockName}</h5>
-                            <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeDock('${dockName}')">Remove</button>
-                        </div>
-                        <div class="row g-2">
-                            <div class="col-12">
-                                <label class="form-label small">Volume</label>
-                                <input name="${dockName}_volume" class="form-control form-control-sm" type="number" step="any" min="0" required>
-                            </div>
-                            <div class="col-12">
-                                <label class="form-label small">Hours</label>
-                                <input name="${dockName}_hours" class="form-control form-control-sm" type="number" step="any" min="0" required>
-                            </div>
-                            <div class="col-12">
-                                <label class="form-label small">Plan (PPH)</label>
-                                <input name="${dockName}_plan" class="form-control form-control-sm" type="number" step="any" min="0" required>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            `;
-            
-            docksContainer.appendChild(col);
+      function createDockCard(dockName) {
+        if (addedDocks.has(dockName)) {
+          alert(dockName + ' is already added');
+          return;
+        }
+        
+        addedDocks.add(dockName);
+        const cardDiv = document.createElement('div');
+        cardDiv.className = 'card';
+        cardDiv.id = 'dock-' + dockName.replace(/\s/g, '-');
+        
+        cardDiv.innerHTML = `
+          <div class="dock-card-header">
+            <h2>${dockName}</h2>
+          </div>
+          <div class="row">
+            <div>
+              <label>Volume</label>
+              <input name="${dockName}_volume" type="number" min="0" step="any" required>
+            </div>
+            <div>
+              <label>Hours</label>
+              <input name="${dockName}_hours" type="number" min="0" step="any" required>
+            </div>
+            <div>
+              <label>Plan (PPH)</label>
+              <input name="${dockName}_plan" type="number" min="0" step="any" required>
+            </div>
+          </div>
+          <button type="button" class="remove-btn" onclick="removeDock('${dockName}')">Remove</button>
+        `;
+        
+        docksContainer.appendChild(cardDiv);
+      }
+
+      window.removeDock = function(dockName) {
+        const dockId = 'dock-' + dockName.replace(/\s/g, '-');
+        const element = document.getElementById(dockId);
+        if (element) {
+          element.remove();
+          addedDocks.delete(dockName);
+        }
+      };
+
+      addDockBtn.addEventListener('click', function() {
+        const selectedDock = dockSelector.value;
+        if (selectedDock) {
+          createDockCard(selectedDock);
+          dockSelector.value = '';
+        } else {
+          alert('Please select a dock to add');
+        }
+      });
+
+      function toNumber(value) {
+        const parsed = Number(value);
+        return Number.isFinite(parsed) ? parsed : 0;
+      }
+
+      function computeMetrics() {
+        const activeDocks = Array.from(addedDocks);
+        const results = {};
+        let totalVolume = 0;
+        let totalHours = 0;
+        let totalExcess = 0;
+
+        for (const dock of activeDocks) {
+          const volumeInput = document.querySelector(`input[name="${dock}_volume"]`);
+          const hoursInput = document.querySelector(`input[name="${dock}_hours"]`);
+          const planInput = document.querySelector(`input[name="${dock}_plan"]`);
+
+          const v = toNumber(volumeInput.value);
+          const h = toNumber(hoursInput.value);
+          const p = toNumber(planInput.value);
+
+          // Actual Production = volume / hours (PPH)
+          const actualProduction = h !== 0 ? v / h : 0;
+          
+          // Excess Hours = hours - (volume / plan)
+          const excessHours = p !== 0 ? h - (v / p) : h;
+
+          results[dock] = {
+            volume: v,
+            hours: h,
+            plan: p,
+            actual_production: actualProduction,
+            excess_hours: excessHours
+          };
+
+          totalVolume += v;
+          totalHours += h;
+          totalExcess += excessHours;
         }
 
-        window.removeDock = function(dockName) {
-            const dockId = 'dock-' + dockName.replace(/\s/g, '-');
-            const element = document.getElementById(dockId);
-            if (element) {
-                element.remove();
-                addedDocks.delete(dockName);
-            }
+        const outboundProduction = totalHours !== 0 ? totalVolume / totalHours : 0;
+        results['Outbound'] = {
+          volume: totalVolume,
+          hours: totalHours,
+          plan: null,
+          actual_production: outboundProduction,
+          excess_hours: totalExcess
         };
 
-        addDockBtn.addEventListener('click', function() {
-            const selectedDock = dockSelector.value;
-            if (selectedDock) {
-                createDockCard(selectedDock);
-                dockSelector.value = '';
-            } else {
-                alert('Please select a dock to add');
-            }
-        });
+        return results;
+      }
 
-        function computeMetrics(activeDocks) {
-            const results = {};
-            let totalVolume = 0;
-            let totalHours = 0;
-            let totalExcess = 0;
-
-            for (const dock of activeDocks) {
-                const volumeInput = document.querySelector(`input[name="${dock}_volume"]`);
-                const hoursInput = document.querySelector(`input[name="${dock}_hours"]`);
-                const planInput = document.querySelector(`input[name="${dock}_plan"]`);
-
-                const v = parseFloat(volumeInput.value) || 0;
-                const h = parseFloat(hoursInput.value) || 0;
-                const p = parseFloat(planInput.value) || 0;
-
-                // Actual Production = volume / hours (PPH)
-                const actualProduction = h !== 0 ? v / h : 0;
-                
-                // Excess Hours = hours - (volume / plan)
-                const excessHours = p !== 0 ? h - (v / p) : h;
-
-                results[dock] = {
-                    volume: v,
-                    hours: h,
-                    plan: p,
-                    actual_production: actualProduction,
-                    excess_hours: excessHours
-                };
-
-                totalVolume += v;
-                totalHours += h;
-                totalExcess += excessHours;
-            }
-
-            const outboundProduction = totalHours !== 0 ? totalVolume / totalHours : 0;
-            results['Outbound'] = {
-                volume: totalVolume,
-                hours: totalHours,
-                plan: null,
-                actual_production: outboundProduction,
-                excess_hours: totalExcess
-            };
-
-            return results;
+      function displayResults(results) {
+        resultsTableBody.innerHTML = '';
+        
+        for (const [dockName, data] of Object.entries(results)) {
+          const row = document.createElement('tr');
+          row.innerHTML = `
+            <td>${dockName}</td>
+            <td>${data.volume.toFixed(2)}</td>
+            <td>${data.hours.toFixed(2)}</td>
+            <td>${data.plan !== null ? data.plan.toFixed(2) : '-'}</td>
+            <td><strong>${data.actual_production.toFixed(2)}</strong></td>
+            <td><strong>${data.excess_hours.toFixed(2)}</strong></td>
+          `;
+          resultsTableBody.appendChild(row);
         }
+        
+        resultsTable.style.display = 'table';
+        resultsTable.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
 
-        function displayResults(results) {
-            resultsTableBody.innerHTML = '';
-            
-            for (const [dockName, data] of Object.entries(results)) {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${dockName}</td>
-                    <td>${data.volume.toFixed(2)}</td>
-                    <td>${data.hours.toFixed(2)}</td>
-                    <td>${data.plan !== null ? data.plan.toFixed(2) : '-'}</td>
-                    <td><strong>${data.actual_production.toFixed(2)}</strong></td>
-                    <td><strong>${data.excess_hours.toFixed(2)}</strong></td>
-                `;
-                resultsTableBody.appendChild(row);
-            }
-            
-            resultsSection.style.display = 'block';
-            resultsSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      productionForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        if (addedDocks.size === 0) {
+          alert('Please add at least one dock');
+          return;
         }
+        
+        const results = computeMetrics();
+        displayResults(results);
+      });
 
-        productionForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const activeDocks = Array.from(addedDocks);
-            if (activeDocks.length === 0) {
-                alert('Please add at least one dock');
-                return;
-            }
-            
-            const results = computeMetrics(activeDocks);
-            displayResults(results);
-        });
+      productionForm.addEventListener('reset', function(e) {
+        resultsTable.style.display = 'none';
+      });
 
-        // Add default docks on page load
-        ['PD10', 'PD11', 'SDs', 'HUB SEC'].forEach(dock => createDockCard(dock));
+      // Add default docks on page load
+      ['PD10', 'PD11', 'SDs', 'HUB SEC'].forEach(dock => createDockCard(dock));
     </script>
-</body>
+  </body>
 </html>
