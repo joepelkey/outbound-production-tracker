@@ -252,7 +252,7 @@
       <div class="note">Actual production = volume / hours. Excess hours = hours - (volume / plan).</div>
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.min.js"></script>
+    <script src="https://unpkg.com/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <script>
       const AVAILABLE_DOCKS = ['PD1', 'PD2', 'PD3', 'PD4', 'PD5', 'PD6', 'PD7', 'PD8', 'PD9', 'PD10', 'PD11', 'PD12', 'PD13', 'SDs', 'HUB SEC', 'PKG SEC'];
       
@@ -390,24 +390,18 @@
         resultsTable.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
       }
 
-      productionForm.addEventListener('submit', function(e) {
-        e.preventDefault();
-        
-        if (addedDocks.size === 0) {
-          alert('Please add at least one dock');
-          return;
-        }
-        
-        const results = computeMetrics();
-        displayResults(results);
-      });
-
       productionForm.addEventListener('reset', function(e) {
         resultsTable.style.display = 'none';
         document.getElementById('exportBtn').style.display = 'none';
       });
 
       function exportToExcel() {
+        if (typeof XLSX === 'undefined') {
+          alert('Excel library is still loading. Please wait a moment and try again.');
+          console.error('XLSX library not available');
+          return;
+        }
+        
         const results = computeMetrics();
         const excelData = [];
         
@@ -462,9 +456,6 @@
         displayResults(results);
         document.getElementById('exportBtn').style.display = 'block';
       });
-
-      // Override the form submit event to include export button visibility
-      productionForm.removeEventListener('submit', productionForm.onsubmit);
 
       // Add default docks on page load
       ['PD10', 'PD11', 'SDs', 'HUB SEC'].forEach(dock => createDockCard(dock));
