@@ -230,6 +230,7 @@
         <div class="actions">
           <button class="primary" type="submit">Compute</button>
           <button class="ghost" type="reset">Reset</button>
+          <button class="primary" type="button" id="exportBtn" style="display: none;">Export to Excel</button>
         </div>
       </form>
 
@@ -251,6 +252,7 @@
       <div class="note">Actual production = volume / hours. Excess hours = hours - (volume / plan).</div>
     </div>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.min.js"></script>
     <script>
       const AVAILABLE_DOCKS = ['PD1', 'PD2', 'PD3', 'PD4', 'PD5', 'PD6', 'PD7', 'PD8', 'PD9', 'PD10', 'PD11', 'PD12', 'PD13', 'SDs', 'HUB SEC', 'PKG SEC'];
       
@@ -402,7 +404,67 @@
 
       productionForm.addEventListener('reset', function(e) {
         resultsTable.style.display = 'none';
+        document.getElementById('exportBtn').style.display = 'none';
       });
+
+      function exportToExcel() {
+        const results = computeMetrics();
+        const excelData = [];
+        
+        // Add title and timestamp
+        excelData.push(['Production Tracker Export']);
+        excelData.push(['Exported:', new Date().toLocaleString()]);
+        excelData.push([]);
+        
+        // Add headers
+        excelData.push(['Dock', 'Volume', 'Hours', 'Plan (PPH)', 'Production (PPH)', 'Excess Hours']);
+        
+        // Add dock data
+        for (const [dockName, data] of Object.entries(results)) {
+          excelData.push([
+            dockName,
+            data.volume,
+            data.hours,
+            data.plan !== null ? data.plan : '',
+            data.actual_production,
+            data.excess_hours
+          ]);
+        }
+        
+        // Create workbook and worksheet
+        const ws = XLSX.utils.aoa_to_sheet(excelData);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, 'Production Data');
+        
+        // Set column widths
+        ws['!cols'] = [{wch: 15}, {wch: 12}, {wch: 12}, {wch: 12}, {wch: 18}, {wch: 15}];
+        
+        // Generate filename with date
+        const date = new Date().toISOString().split('T')[0];
+        const filename = `Production_Tracker_${date}.xlsx`;
+        
+        // Save the file
+        XLSX.writeFile(wb, filename);
+      }
+
+      document.getElementById('exportBtn').addEventListener('click', exportToExcel);
+
+      // Show export button when results are computed
+      productionForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        if (addedDocks.size === 0) {
+          alert('Please add at least one dock');
+          return;
+        }
+        
+        const results = computeMetrics();
+        displayResults(results);
+        document.getElementById('exportBtn').style.display = 'block';
+      });
+
+      // Override the form submit event to include export button visibility
+      productionForm.removeEventListener('submit', productionForm.onsubmit);
 
       // Add default docks on page load
       ['PD10', 'PD11', 'SDs', 'HUB SEC'].forEach(dock => createDockCard(dock));
