@@ -231,6 +231,7 @@
           <button class="primary" type="submit">Compute</button>
           <button class="ghost" type="reset">Reset</button>
           <button class="primary" type="button" id="exportBtn" style="display: none;">Export to Excel</button>
+          <button class="ghost" type="button" id="printBtn" style="display: none;">Print</button>
         </div>
       </form>
 
@@ -390,10 +391,7 @@
         resultsTable.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
       }
 
-      productionForm.addEventListener('reset', function(e) {
-        resultsTable.style.display = 'none';
-        document.getElementById('exportBtn').style.display = 'none';
-      });
+      
 
       function exportToExcel() {
         if (typeof XLSX === 'undefined') {
@@ -443,7 +441,36 @@
 
       document.getElementById('exportBtn').addEventListener('click', exportToExcel);
 
-      // Show export button when results are computed
+      // Print results helper
+      function printResults() {
+        if (resultsTable.style.display === 'none') {
+          alert('No results to print. Compute results first.');
+          return;
+        }
+
+        const printWindow = window.open('', '_blank');
+        const styles = `
+          body { font-family: Arial, sans-serif; margin: 20px; }
+          table { width: 100%; border-collapse: collapse; }
+          th, td { text-align: left; padding: 8px; border: 1px solid #ddd; }
+          th { background: #f7f2e6; color: ${getComputedStyle(document.documentElement).getPropertyValue('--accent') || '#0f4c5c'}; }
+        `;
+
+        printWindow.document.write(`<!doctype html><html><head><title>Production Results</title><style>${styles}</style></head><body>`);
+        printWindow.document.write(resultsTable.outerHTML);
+        printWindow.document.write('</body></html>');
+        printWindow.document.close();
+        printWindow.focus();
+        // Delay slightly to ensure resources render before printing
+        setTimeout(() => {
+          printWindow.print();
+          printWindow.close();
+        }, 200);
+      }
+
+      document.getElementById('printBtn').addEventListener('click', printResults);
+
+      // Show export and print buttons when results are computed
       productionForm.addEventListener('submit', function(e) {
         e.preventDefault();
         
@@ -455,6 +482,13 @@
         const results = computeMetrics();
         displayResults(results);
         document.getElementById('exportBtn').style.display = 'block';
+        document.getElementById('printBtn').style.display = 'block';
+      });
+
+      productionForm.addEventListener('reset', function(e) {
+        resultsTable.style.display = 'none';
+        document.getElementById('exportBtn').style.display = 'none';
+        document.getElementById('printBtn').style.display = 'none';
       });
 
       // Add default docks on page load
